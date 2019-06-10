@@ -98,9 +98,9 @@ function handleCursorLeave(event){
 }
 
 function handleCursorEnter(event){
-    //body.style.cursor = "CrossHair";
-    body.style.cursor = "url('pen_emoji.png'), auto";
-    body.style.cursor = " col-resiez:5px ; row-resize : 5px"
+    body.style.cursor = "CrossHair";
+    //body.style.cursor = "url('pen_emoji.png'), auto"; 시도는 해보았으나 도저히 사이즈가 줄어들지 않고, 위치가 이상해서 포기
+    
     if(filling == false && painting == true){
         let x = event.offsetX;
         let y = event.offsetY;
