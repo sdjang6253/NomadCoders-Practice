@@ -24,9 +24,33 @@ const server = http.createServer(app);// websocker 을 하기위해 server 를 �
 const wss = new WebSocketServer( { server } );
 // 이로 인해 하나의 서버에서 http 와 websocket 을 둘다 작동시킬수 있다. 
 
-function handleConnection(socket){
-    console.log(socket);
-}
-wss.on("connection" , handleConnection);
+const sokcets = [];
+
+wss.on("connection" , (socket)=>{
+    sokcets.push(socket);
+    socket["nickname"] = "Anon";
+
+    console.log('Connected to Browser')
+    socket.on('close' , () => console.log('Disconnected from the Browser'))
+    socket.on('message' , (msg) => {
+        const message = JSON.parse(msg);
+        switch(message.type){
+            case 'new_message' : 
+                sokcets.forEach((aSocket) => {
+                    if(aSocket != socket){
+                        aSocket.send(`${socket.nickname}: ${message.payload.toString()}`);
+                    }
+                });
+                break;
+            case 'nickname' :
+                socket["nickname"] = message.payload;
+                console.log(message.payload);
+                break;
+            }
+    });
+    socket.send('hello!!!');
+    
+} );
+
 
 server.listen(3000, handleListen); // app.listen() 이랑 별반 차이 없어보이지만 이로 인해 http 와 ws 를 둘다 구동 가능
