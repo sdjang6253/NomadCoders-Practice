@@ -1,6 +1,6 @@
 import express from "express";
 import http from "http";
-import WebSocket , {WebSocketServer} from "ws";
+import {Server} from "socket.io";
 //강의에서는 __dirname 이 기본으로 가져와 지지만 나는 그게 안되어서 임의로 가져와줌.
 // package.json 에서 type:module 을 추가한 뒤로 이렇게 되는것 같음. 
 import path from "path";
@@ -20,10 +20,15 @@ app.get("/*" , (req, res) => res.redirect("/"));
 
 const handleListen = () => console.log(`Listening on http://localhost:3000`);
 
-const server = http.createServer(app);// websocker 을 하기위해 server 를 명시적? 으로 생성
-const wss = new WebSocketServer( { server } );
+const httpServer = http.createServer(app);// websocker 을 하기위해 server 를 명시적? 으로 생성
+const wsServer = new Server(httpServer);
+//const wss = new WebSocketServer( { server } );
 // 이로 인해 하나의 서버에서 http 와 websocket 을 둘다 작동시킬수 있다. 
 
+wsServer.on("connection" , (socket) =>{
+    console.log(socket);
+})
+/*
 const sokcets = [];
 
 wss.on("connection" , (socket)=>{
@@ -51,6 +56,6 @@ wss.on("connection" , (socket)=>{
     socket.send('hello!!!');
     
 } );
+*/
 
-
-server.listen(3000, handleListen); // app.listen() 이랑 별반 차이 없어보이지만 이로 인해 http 와 ws 를 둘다 구동 가능
+httpServer.listen(3000, handleListen); // app.listen() 이랑 별반 차이 없어보이지만 이로 인해 http 와 ws 를 둘다 구동 가능
