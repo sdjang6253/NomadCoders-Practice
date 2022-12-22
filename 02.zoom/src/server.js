@@ -26,15 +26,24 @@ const wsServer = new Server(httpServer);
 // 이로 인해 하나의 서버에서 http 와 websocket 을 둘다 작동시킬수 있다. 
 
 wsServer.on("connection" , (socket) =>{
+    socket["nickName"] = 'Anonymous';
     socket.onAny((event)=>{
         console.log(`Socket Event : ${event}`);
     })
-    socket.on('enter_room' , (roomName , done ) => {
+    socket.on('enter_room' , (roomName , nickName , done ) => {
         socket.join(roomName);
+        socket['nickName'] = nickName;
         done();
-        socket.to(roomName).emit("welcome");
+        socket.to(roomName).emit("welcome" , socket.nickName);
     });
-    
+    socket.on('disconnecting' , () => {
+        socket.rooms.forEach(room => socket.to(room).emit('bye' , socket.nickName));
+    })
+    socket.on('new_message' , (msg, roomName, done) => {
+        socket.to(roomName).emit('new_message' , `${socket.nickName} : ${msg}`);
+        done();
+    })
+    //socket.on('nickName' , nickName => { socket['nickName'] = nickName});
 })
 /*
 const sokcets = [];
