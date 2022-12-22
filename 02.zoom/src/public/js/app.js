@@ -70,3 +70,19 @@ socket.on('bye' , (left) =>{
 })
 
 socket.on('new_message' , addMessage);
+
+socket.on("room_change" , rooms => {
+    const roomList= welcome.querySelector('ul');
+    roomList.innerHTML = "";
+    if(rooms.length === 0){
+        return;
+    }
+    rooms.forEach(element => {
+        const li = document.createElement('li');
+        li.innerText = element;
+        roomList.append(li);
+    });
+});
+//아래 두개는 같은 문장.
+//socket.on("room_change" , console.log);
+//socket.on("room_change" , (msg) => {console.log(msg)});

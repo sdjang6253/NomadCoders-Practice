@@ -24,20 +24,42 @@ const httpServer = http.createServer(app);// websocker 을 하기위해 server �
 const wsServer = new Server(httpServer);
 //const wss = new WebSocketServer( { server } );
 // 이로 인해 하나의 서버에서 http 와 websocket 을 둘다 작동시킬수 있다. 
+wsServer.sockets.adapter.sids
+function publicRooms(){
+    const {
+        sockets: {
+            adapter: {sids , rooms},
+        },
+    } = wsServer;
+
+    const publicRooms = [];
+    rooms.forEach( (_ , key) => {
+        if(sids.get(key) === undefined){
+            publicRooms.push(key);
+        }
+    });
+    return publicRooms;
+}
 
 wsServer.on("connection" , (socket) =>{
     socket["nickName"] = 'Anonymous';
     socket.onAny((event)=>{
-        console.log(`Socket Event : ${event}`);
+        //console.log(wsServer.sockets.adapter);
+        //console.log(`Socket Event : ${event}`);
     })
     socket.on('enter_room' , (roomName , nickName , done ) => {
         socket.join(roomName);
         socket['nickName'] = nickName;
         done();
         socket.to(roomName).emit("welcome" , socket.nickName);
+        wsServer.sockets.emit("room_change" , publicRooms());
     });
+    //disconnecting evnet 는 소켓을 떠나기 전에 일어나는 이벤트, 
     socket.on('disconnecting' , () => {
         socket.rooms.forEach(room => socket.to(room).emit('bye' , socket.nickName));
+    })
+    socket.on('disconnect' , () => {
+        wsServer.sockets.emit("room_change" , publicRooms());
     })
     socket.on('new_message' , (msg, roomName, done) => {
         socket.to(roomName).emit('new_message' , `${socket.nickName} : ${msg}`);
