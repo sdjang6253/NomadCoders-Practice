@@ -26,11 +26,12 @@ const wsServer = new Server(httpServer);
 // 이로 인해 하나의 서버에서 http 와 websocket 을 둘다 작동시킬수 있다. 
 
 wsServer.on("connection" , (socket) =>{
-    socket.on('enter_room' , (msg , done) => {
-        console.log(msg);
-        setTimeout(()=>{
-            done();
-        }, 5000);
+    socket.onAny((event)=>{
+        console.log(`Socket Event : ${event}`);
+    })
+    socket.on('enter_room' , (roomName , done ) => {
+        socket.join(roomName);
+        done();
     });
 })
 /*
