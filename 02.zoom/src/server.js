@@ -1,6 +1,7 @@
 import express from "express";
 import http from "http";
 import {Server} from "socket.io";
+import { instrument } from "@socket.io/admin-ui";
 //강의에서는 __dirname 이 기본으로 가져와 지지만 나는 그게 안되어서 임의로 가져와줌.
 // package.json 에서 type:module 을 추가한 뒤로 이렇게 되는것 같음. 
 import path from "path";
@@ -21,7 +22,17 @@ app.get("/*" , (req, res) => res.redirect("/"));
 const handleListen = () => console.log(`Listening on http://localhost:3000`);
 
 const httpServer = http.createServer(app);// websocker 을 하기위해 server 를 명시적? 으로 생성
-const wsServer = new Server(httpServer);
+const wsServer = new Server(httpServer, {
+    cors : {
+        origin: ["https://admin.socket.io"],
+        credentials: true
+    }
+});
+
+instrument(wsServer, {
+    auth: false,
+    mode: "development",
+ });
 //const wss = new WebSocketServer( { server } );
 // 이로 인해 하나의 서버에서 http 와 websocket 을 둘다 작동시킬수 있다. 
 wsServer.sockets.adapter.sids
