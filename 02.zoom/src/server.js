@@ -10,7 +10,7 @@ import path from "path";
 
 const options = {
     key: fs.readFileSync('/mnt/01.Development/rootca.key'),
-    cert: fs.readFileSync('/mnt/01.Development/rootca.crt')
+   cert: fs.readFileSync('/mnt/01.Development/rootca.crt')
   };
 
 const app = express();
@@ -49,8 +49,7 @@ httpServer.listen(3000, handleListen); // app.listen() 이랑 별반 차이 없�
 httpsServer.listen(3003, handleHttpsListen); 
 //2023.01.08  당장은 https 를 node 에서 올리지만, nginx를 추가해서 해당 설정 nginx로 옮길수 있도록 수정 
 
-//httpsWsServer.on('connection' , socket => {
-wsServer.on('connection' , socket => {
+httpsWsServer.on('connection' , socket => {
     socket.on('join_room' , (roomName ) => {
         socket.join(roomName);
         socket.to(roomName).emit('welcome');
